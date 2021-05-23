@@ -51,3 +51,7 @@
   margin:1rem;
   padding: 2rem;
 }
+
+.container-item img {
+  width: 100%;
+}

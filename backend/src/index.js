@@ -5,10 +5,6 @@ import 'dotenv/config';
 
 const app = express();
 
-const multer = require("multer");
-const upload = multer();
-app.use(upload.array());
-
 app.use((req, res, next) => {
   next();
 });
