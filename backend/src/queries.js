@@ -29,10 +29,94 @@ const getItems = (request, response) => {
     }
     results.rows.forEach(item => {
       if (item.image) {
-        item.url = process.env.CFURL + item.id
+        item.url = item.image
       }
     })
     response.status(200).json(results.rows)
+  })
+}
+
+const saveLink = async (request, response) => {
+  const fetch = require('node-fetch');
+  const id = uuidv4();
+  const { url } = request.body
+
+  // Call Fetch API
+  const responseAPI = await fetch(process.env.FETCHAPI + url);
+  const responseStatus = await responseAPI.status
+
+  if (responseStatus !== 200) {
+    // If fetch API timeout
+    var imgTitle = url
+  }
+  else {
+    const { title, image } = await responseAPI.json()
+    var imgTitle = title
+
+    // Get Image from Fetch
+    if (image) {
+      const imageURL = new URL(image, "https://example.com")
+      try {
+        const imageResponse = await fetch(imageURL)
+        const img = await imageResponse
+        if (img.ok) {
+          const imgDate = Math.floor(Date.now() / 1000); // Get date to add to Key
+          const params = {
+            Bucket: process.env.BUCKETNAME,
+            Key: (title || id) + imgDate, // Saved name in S3
+            Body: img.body,
+            ContentType: img.headers.get('content-type')
+          }
+          const s3upload = await s3.upload(params).promise()
+          var imgKey = process.env.CFURL + encodeURI(params.Key) // File name in S3
+        }
+      } catch (error) {
+        response.status(404).send(`Error: ${error}`)
+      }
+    }
+  }
+
+  // Save into DB
+  pool.query('INSERT INTO items2 (name, id, image) VALUES ($1, $2, $3)', [imgTitle, id, imgKey], (error, results) => {
+    if (error) {
+      throw error
+    }
+    if (imgKey) {
+      response.status(201).send(`Item added with name: ${imgTitle}`)
+    } else {
+      // Setup fetch for screenshot
+      response.status(206).send({
+        title: imgTitle,
+        url: url,
+        id: id
+      })
+    }
+  })
+}
+
+const getScreenshot = async (request, response) => {
+  const fetch = require('node-fetch');
+  const { url, id, title } = request.body
+
+  const responseAPI = await fetch(process.env.SCREENSHOTAPI + url)
+  const body = await responseAPI.json()
+
+  if (body) {
+    const imgDate = Math.floor(Date.now() / 1000); // Get date to add to Key
+    const params = {
+      Bucket: process.env.BUCKETNAME,
+      Key: (title || id) + imgDate, // Saved name in S3
+      Body: Buffer.from(body, 'base64'),
+      ContentType: 'image/jpeg'
+    }
+    const s3upload = await s3.upload(params).promise()
+    var imgKey = process.env.CFURL + encodeURI(params.Key) // File name in S3
+  }
+  pool.query(`UPDATE items2 SET image = $1 WHERE id = $2`, [imgKey, id], (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(201).send(`Item added with name: ${title}`)
   })
 }
 
@@ -110,6 +194,8 @@ const deleteItem = (request, response) => {
 export default {
   getUsers,
   getItems,
+  saveLink,
+  getScreenshot,
   createItem,
   createImage,
   deleteItem
