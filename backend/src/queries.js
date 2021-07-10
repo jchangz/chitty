@@ -22,16 +22,85 @@ const getUsers = (request, response) => {
   })
 }
 
-const getItems = (request, response) => {
-  pool.query('SELECT * FROM items2', (error, results) => {
+const getItemUpdate = (request, response) => {
+  const { id } = request.query
+  pool.query(`
+    SELECT id, i.name, i.image AS image, t.tags
+    FROM items2 i
+    LEFT JOIN (
+      SELECT it.item_id AS id, json_agg(json_build_object('id', t.tag_id, 'name', t.name)) AS tags
+      FROM tagmap it
+      LEFT JOIN tag t ON t.tag_id = it.tag_id
+      GROUP  BY it.item_id
+    ) t USING (id) WHERE id = $1;`, [id], (error, results) => {
     if (error) {
       throw error
     }
-    results.rows.forEach(item => {
-      if (item.image) {
-        item.url = item.image
-      }
-    })
+    response.status(200).json(results.rows)
+  })
+}
+
+const getItems = (request, response) => {
+  pool.query(`
+    SELECT id, i.name, i.image AS image, t.tags
+    FROM items2 i
+    LEFT JOIN (
+      SELECT it.item_id AS id, json_agg(json_build_object('id', t.tag_id, 'name', t.name)) AS tags
+      FROM tagmap it
+      LEFT JOIN tag t ON t.tag_id = it.tag_id
+      GROUP  BY it.item_id
+     ) t USING (id);`, (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
+
+const createTag = (request, response) => {
+  pool.query(`
+    SELECT items2.*
+    FROM tagmap, items2, tag
+    WHERE tagmap.tag_id = tag.tag_id
+      AND tag.name IN ('d')
+      AND items2.id = tagmap.item_id`, (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
+
+const getTags = (request, response) => {
+  pool.query(`
+    SELECT t.name, t.tag_id, COUNT(tm.tag_id) as count
+    FROM tag t
+    LEFT JOIN tagmap tm ON tm.tag_id = t.tag_id
+    GROUP BY t.name, t.tag_id`, (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
+
+const editPostTag = (request, response) => {
+  const { staged_tags, item_id } = request.body
+  // const params = staged_tags.split(",").map(function (item, idx) { return "'" + item + "'" }).join(',')
+  const tagParams = staged_tags.split(",").map(function (item, idx) { return "('" + item + "')" }).join(',')
+  pool.query(`
+    INSERT INTO tag (name) VALUES ${tagParams} ON CONFLICT (name) DO NOTHING;
+    INSERT INTO tagmap (item_id, tag_id)
+    SELECT '${item_id}', tz.tag_id
+    FROM (
+      SELECT t.name, t.tag_id
+      FROM tag t
+      WHERE t.name IN (${tagParams})
+    ) tz`, (error, results) => {
+    if (error) {
+      throw error
+    }
+    console.log(pool.query)
     response.status(200).json(results.rows)
   })
 }
@@ -198,5 +267,9 @@ export default {
   getScreenshot,
   createItem,
   createImage,
-  deleteItem
+  deleteItem,
+  getTags,
+  createTag,
+  editPostTag,
+  getItemUpdate
 }

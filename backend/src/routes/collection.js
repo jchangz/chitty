@@ -9,6 +9,12 @@ const router = Router();
 
 router.get('/', db.getItems)
 
+router.get('/update', db.getItemUpdate)
+
+router.get('/tags', db.getTags)
+
+router.post('/addtag', upload.array(), db.createTag)
+
 router.post('/addtext', upload.array(), db.createItem)
 
 router.post('/addimage', imageUpload.single('image'), db.createImage)

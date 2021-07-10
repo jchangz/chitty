@@ -15,6 +15,7 @@ app.use(express.json());
 
 app.use('/users', routes.user);
 app.use('/collection', routes.collection);
+app.use('/tags', routes.tags);
 
 app.listen(4000, () =>
   console.log('Listening on port 4000!'),

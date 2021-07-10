@@ -1,0 +1,75 @@
+.tags-container {
+  display: flex;
+}
+
+.tags-existing {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+}
+
+.tags-error {
+  padding: 0.2rem 0.6rem;
+  position: absolute;
+  background: red;
+  color: white;
+}
+
+.tags-typeahead-container {
+  position: relative;
+  display: flex;
+}
+
+.typeahead-form {
+  position: relative;
+  min-width: 1rem;
+}
+
+.tags-typeahead-input {
+  position: absolute;
+  background: transparent;
+  border: none;
+  top: 0;
+  left: 0;
+  color: #283574;
+  padding: 0;
+  width: 100%;
+  min-width: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+.tags-typeahead-input:focus-visible {
+  outline: none;
+  box-shadow: 0px 2px #888888;
+  ;
+}
+
+.tags-typeahead-tag {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.8;
+  text-transform: lowercase;
+}
+
+.typeahead-autocomplete {
+  color: #ccc;
+}
+
+.tags-typeahead-staged {
+  color: #e55145;
+}
+
+.tags-typeahead-confirm {
+  display: flex;
+  position: absolute;
+  left: 0;
+  bottom: -2rem;
+  background: #ccc;
+  padding: 0.4rem;
+}
+
+.tags-typeahead-submit {
+  position: absolute;
+  bottom: -2rem;
+  left: 0;
+}
