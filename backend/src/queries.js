@@ -25,13 +25,13 @@ const getUsers = (request, response) => {
 const getItemUpdate = (request, response) => {
   const { id } = request.query
   pool.query(`
-    SELECT id, i.name, i.image AS image, t.tags
+    SELECT id, i.name, i.image AS image, COALESCE(t.tags, '{}') AS tags
     FROM items2 i
     LEFT JOIN (
-      SELECT it.item_id AS id, json_agg(json_build_object('id', t.tag_id, 'name', t.name)) AS tags
+      SELECT it.item_id AS id, array_agg(json_build_object('id', t.tag_id, 'name', t.name)) AS tags
       FROM tagmap it
       LEFT JOIN tag t ON t.tag_id = it.tag_id
-      GROUP  BY it.item_id
+      GROUP BY it.item_id
     ) t USING (id) WHERE id = $1;`, [id], (error, results) => {
     if (error) {
       throw error
@@ -42,14 +42,14 @@ const getItemUpdate = (request, response) => {
 
 const getItems = (request, response) => {
   pool.query(`
-    SELECT id, i.name, i.image AS image, t.tags
+    SELECT id, i.name, i.image AS image, COALESCE(t.tags, '{}') AS tags
     FROM items2 i
     LEFT JOIN (
-      SELECT it.item_id AS id, json_agg(json_build_object('id', t.tag_id, 'name', t.name)) AS tags
+      SELECT it.item_id AS id, array_agg(json_build_object('id', t.tag_id, 'name', t.name)) AS tags
       FROM tagmap it
       LEFT JOIN tag t ON t.tag_id = it.tag_id
-      GROUP  BY it.item_id
-     ) t USING (id);`, (error, results) => {
+      GROUP BY it.item_id
+    ) t USING (id);`, (error, results) => {
     if (error) {
       throw error
     }
@@ -260,6 +260,32 @@ const deleteItem = (request, response) => {
   })
 }
 
+function doQuery(rx) {
+  return new Promise(function (resolve, reject) {
+    // pool.query('DELETE FROM items2 WHERE id = $1', [rx.id], (error, results) => {
+    pool.query('DELETE FROM items2 WHERE id = $1', ['345'], (error, results) => {
+      if (error) {
+        return reject(error)
+      }
+      resolve(results)
+    })
+  })
+}
+
+const setSelections = async (request, response) => {
+  const arr = request.body
+
+  for (let i = 0; i < request.body.length; i++) {
+    try {
+      let queryOutput = await doQuery(request.body[i])
+      arr[i].status = '200'
+    } catch (err) {
+      arr[i].status = '400'
+    }
+  }
+  response.status(207).json({ requestBody: arr })
+}
+
 export default {
   getUsers,
   getItems,
@@ -271,5 +297,6 @@ export default {
   getTags,
   createTag,
   editPostTag,
-  getItemUpdate
+  getItemUpdate,
+  setSelections,
 }

@@ -7,6 +7,9 @@ export {
 export {
     PostsProvider,
     TagsProvider,
+    SelectionsProvider,
+    useSelectionsState,
+    useSelectionsDispatch,
     usePostsState,
     usePostsDispatch,
     useTagsState,

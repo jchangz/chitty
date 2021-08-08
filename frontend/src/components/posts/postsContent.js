@@ -1,22 +1,26 @@
-import React from 'react';
-import PostsTags from './postsTags';
-import '../../App.css';
+import React from 'react'
+import PostsTags from './postsTags'
+import PostsEdit from './postsEdit'
+import '../../App.css'
 
-const PostsContent = React.memo(({ item, deletePost }) => {
+function PostsContent({ item, highlight }) {
   return (
     <div className="container-item">
+      <PostsEdit
+        item={item}
+        highlight={highlight}
+      />
       <p>{item.name}</p>
       <img
         src={item.image}
         alt=""
       />
-      <button onClick={() => deletePost(item)}>Delete</button>
       <PostsTags
         id={item.id}
-        currentTags={item.tags ? item.tags : []}
+        currentTags={item.tags}
       />
     </div>
   )
-})
+}
 
-export default PostsContent;
+export default React.memo(PostsContent);

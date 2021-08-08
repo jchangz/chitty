@@ -1,41 +1,71 @@
 import { createContext, useReducer, useContext } from 'react'
-import { postsReducer, tagsReducer } from './reducer'
+import { postsReducer, tagsReducer, selectionsReducer } from './reducer'
 
+export const SelectionsDispatchContext = createContext({})
+export const SelectionsStateContext = createContext({})
 export const PostsStateContext = createContext({})
 export const PostsDispatchContext = createContext({})
 export const TagsDispatchContext = createContext({})
 export const TagsStateContext = createContext({})
 
+export const useSelectionsState = () => {
+  const selectionsState = useContext(SelectionsStateContext);
+  if (!selectionsState) {
+    throw new Error('useSelectionsState must be used within SelectionsProvider');
+  }
+  return selectionsState;
+}
+
+export const useSelectionsDispatch = () => {
+  const selectionsDispatch = useContext(SelectionsDispatchContext);
+  if (!selectionsDispatch) {
+    throw new Error('useSelectionsDispatch must be used within SelectionsProvider');
+  }
+  return selectionsDispatch;
+}
+
 export const usePostsState = () => {
-  const fruitsState = useContext(PostsStateContext);
-  if (!fruitsState) {
+  const postsState = useContext(PostsStateContext);
+  if (!postsState) {
     throw new Error('usePostsState must be used within PostsProvider');
   }
-  return fruitsState;
+  return postsState;
 }
 
 export const usePostsDispatch = () => {
-  const fruitsState = useContext(PostsDispatchContext);
-  if (!fruitsState) {
+  const postsDispatch = useContext(PostsDispatchContext);
+  if (!postsDispatch) {
     throw new Error('usePostsDispatch must be used within PostsProvider');
   }
-  return fruitsState;
+  return postsDispatch;
 }
 
 export const useTagsState = () => {
-  const fruitsState = useContext(TagsStateContext);
-  if (!fruitsState) {
+  const tagsState = useContext(TagsStateContext);
+  if (!tagsState) {
     throw new Error('useTagsState must be used within TagsProvider');
   }
-  return fruitsState;
+  return tagsState;
 }
 
 export const useTagsDispatch = () => {
-  const fruitsState = useContext(TagsDispatchContext);
-  if (!fruitsState) {
+  const tagsDispatch = useContext(TagsDispatchContext);
+  if (!tagsDispatch) {
     throw new Error('useTagsDispatch must be used within TagsProvider');
   }
-  return fruitsState;
+  return tagsDispatch;
+}
+
+export const SelectionsProvider = ({ children }) => {
+  const [selections, dispatch] = useReducer(selectionsReducer, { selectedItems: [], selectedItemsID: [] })
+
+  return (
+    <SelectionsStateContext.Provider value={selections}>
+      <SelectionsDispatchContext.Provider value={dispatch}>
+        {children}
+      </SelectionsDispatchContext.Provider>
+    </SelectionsStateContext.Provider>
+  )
 }
 
 export const PostsProvider = ({ children }) => {

@@ -23,6 +23,8 @@ router.post('/addlink', upload.array(), db.saveLink)
 
 router.post('/getscreenshot', db.getScreenshot)
 
+router.post('/selections', db.setSelections)
+ 
 router.delete('/delete?:id', db.deleteItem)
 
 export default router;

@@ -53,4 +53,4 @@ function PostsTags({ id, currentTags }) {
   )
 }
 
-export default PostsTags;
+export default React.memo(PostsTags);

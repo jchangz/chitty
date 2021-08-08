@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import Tags from './components/tags'
 import Posts from './components/posts'
-import { PostsProvider, TagsProvider } from './context/context'
+import Status from './components/status'
+import { PostsProvider, TagsProvider, SelectionsProvider } from './context/context'
 import './App.css';
 
 function App() {
@@ -65,31 +66,34 @@ function App() {
 
   return (
     <div className="App">
-      <PostsProvider>
-        <TagsProvider >
-          <div className="body">
-            <div className="tags-body">
-              <Tags />
+      <SelectionsProvider>
+        <PostsProvider>
+          <TagsProvider >
+            <Status />
+            <div className="body">
+              <div className="tags-body">
+                <Tags />
+              </div>
+              <div className="content-body">
+                <form ref={form} onSubmit={submitForm} data-type="text">
+                  <input type="text" name="name" />
+                  <input type="submit"></input>
+                </form>
+                <form ref={imageForm} onSubmit={submitForm} data-type="image">
+                  <input type="text" name="name" />
+                  <input type="file" id="image" name="image" accept="image/*" />
+                  <input type="submit"></input>
+                </form>
+                <form ref={webForm} onSubmit={submitForm} data-type="link">
+                  <input type="url" name="url" />
+                  <input type="submit"></input>
+                </form>
+                <Posts />
+              </div>
             </div>
-            <div className="content-body">
-              <form ref={form} onSubmit={submitForm} data-type="text">
-                <input type="text" name="name" />
-                <input type="submit"></input>
-              </form>
-              <form ref={imageForm} onSubmit={submitForm} data-type="image">
-                <input type="text" name="name" />
-                <input type="file" id="image" name="image" accept="image/*" />
-                <input type="submit"></input>
-              </form>
-              <form ref={webForm} onSubmit={submitForm} data-type="link">
-                <input type="url" name="url" />
-                <input type="submit"></input>
-              </form>
-              <Posts />
-            </div>
-          </div>
-        </TagsProvider>
-      </PostsProvider>
+          </TagsProvider>
+        </PostsProvider>
+      </SelectionsProvider>
     </div>
   );
 }
