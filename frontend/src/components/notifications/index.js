@@ -9,7 +9,7 @@ function Notifications({ notification, id, setNotificationList }) {
     return () => {
       clearTimeout(updateNotification)
     }
-  }, [])
+  }, [id, setNotificationList])
 
   return (
     <div className="status-message-content">

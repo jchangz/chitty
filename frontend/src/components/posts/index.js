@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { usePostsDispatch, usePostsState, getPosts, useSelectionsDispatch, useSelectionsState } from '../../context';
+import React, { useState, useEffect, useRef } from 'react';
+import { usePostsDispatch, usePostsState, getPosts, useSelectionsState } from '../../context';
 import PostsContent from './postsContent'
+import MouseDragSelect from '../../helpers/mouseDragSelect'
 
 function Posts() {
   const { posts, update } = usePostsState()
   const dispatchPosts = usePostsDispatch()
-  const { selectedItems, selectedItemsID } = useSelectionsState()
-  const dispatchSelections = useSelectionsDispatch()
+  const { selectedItemsID } = useSelectionsState()
   const [postsList, setPostsList] = useState(null)
+  const contentRef = useRef(null) // Ref is used to pass nodes to MouseDragSelect
 
   useEffect(() => {
     // Set initial posts list
@@ -21,23 +22,19 @@ function Posts() {
     }
   }, [update, posts])
 
-  const clearHighlightedItems = (e) => {
-    // Remove highlighted item when clicking whitespace 
-    if ((e.target === e.currentTarget) && selectedItems.length > 0) {
-      dispatchSelections({ type: 'resetSelections' })
-    }
-  }
-
   return (
-    <div onClick={clearHighlightedItems}>
-      {postsList && postsList.map((item, i) => (
-        <PostsContent
-          item={item}
-          highlight={selectedItemsID.includes(item.id) ? true : false}
-          key={item.id}
-        />
-      ))}
-    </div>
+    <MouseDragSelect>
+      <div ref={contentRef}>
+        {postsList && postsList.map((item, i) => (
+          <PostsContent
+            dataId={i}
+            item={item}
+            highlight={selectedItemsID.includes(item.id) ? true : false}
+            key={item.id}
+          />
+        ))}
+      </div>
+    </MouseDragSelect>
   );
 }
 
