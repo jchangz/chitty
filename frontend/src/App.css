@@ -45,10 +45,15 @@
 
 .container-item {
   position: relative;
-  max-width: 200px;
-  width: 100%;
-  background: #f8f8f8;
+  /* max-width: 350px; */
+  width: 21%;
+  background: #fff;
   margin: 1rem;
+  overflow: hidden;
+  border-radius: 9px;
+}
+
+.container-item p {
   padding: 2rem;
 }
 
@@ -58,7 +63,6 @@
   right: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.1);
 }
 
 .container-editing {
@@ -67,7 +71,7 @@
   right: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .container-item img {
@@ -80,13 +84,15 @@
 }
 
 .tags-body {
-  width: 25%;
-  background: #f4f4f4;
+  width: 200px;
+  background: #fff;
   padding: 1rem 2rem;
+  text-align: left;
 }
 
 .content-body {
-  width: 75%;
+  width: 100%;
+  background: #f4f4f4;
 }
 
 .status {
@@ -145,4 +151,11 @@
   background: rgba(0, 0, 0, 0.1);
   box-shadow: 0 0 5px rgba(0, 0, 0, .1);
   pointer-events: none;
+}
+
+.post-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
 }
