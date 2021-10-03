@@ -3,9 +3,13 @@ import PostsTags from './postsTags'
 import PostsEdit from './postsEdit'
 import '../../App.css'
 
-function PostsContent({ item, highlight, transform }) {
+function PostsContent({ item, highlight, transform, move, draggable }) {
   return (
-    <div className="container-item" style={{ transform: `translateY(${transform}px)` }}>
+    <div
+      className="container-item"
+      draggable={draggable}
+      style={{ transform: `translateY(${transform}px)` }}>
+      {move && (<div className={"thing-" + `${move}`} />)}
       <img
         src={item.image}
         alt=""
@@ -15,10 +19,10 @@ function PostsContent({ item, highlight, transform }) {
         highlight={highlight}
       />
       <p>{item.name}</p>
-      <PostsTags
+      {/* <PostsTags
         id={item.id}
         currentTags={item.tags}
-      />
+      /> */}
     </div>
   )
 }

@@ -5,6 +5,8 @@ export const selectionsReducer = (state, action) => {
             return { ...state, selectedItems: action.selectedItems, selectedItemsID: selectedItemsID }
         case 'resetSelections':
             return { ...state, selectedItems: [], selectedItemsID: [] }
+        case 'testCoords':
+            return { ...state, tcoords: action.tcoords }
         default:
             throw new Error()
     }

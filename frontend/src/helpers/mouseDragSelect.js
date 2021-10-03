@@ -4,7 +4,7 @@ import { usePostsState, useSelectionsState, useSelectionsDispatch } from '../con
 export default function MouseDragSelect(props) {
   const dispatchSelection = useSelectionsDispatch()
   const { posts } = usePostsState() // Use posts to map with the selected items array to send the correct format with dispatchSelection
-  const { selectedItems } = useSelectionsState()
+  const { selectedItems, tcoords } = useSelectionsState()
 
   const initialMousePosition = useRef(null) // Mouse position on inital click
   const wrapperRef = useRef(null) // Ref of this component to get the left bounds so select box wont go beyond
@@ -16,6 +16,8 @@ export default function MouseDragSelect(props) {
   const [selectionBoxRect, setSelectionBoxRect] = useState(false) // Coordinates for width and height of selection box
   const [childNodeList, setChildNodeList] = useState(false) // Keep coordinates of children nodes for intersection comparison
   const [autoScroll, setAutoScroll] = useState(false) // State for automatic scrolling
+
+  const [tester, setTester] = useState(false)
 
   useEffect(() => {
     /**
@@ -46,7 +48,6 @@ export default function MouseDragSelect(props) {
      * Return true if we are clicking on this component
      * Otherwise let the native child click events fire
      */
-    e.preventDefault()
     if (e.target === props.children.ref.current) {
       initialMousePosition.current = [e.pageX, e.pageY] // Set initial click position
       setIsMouseClicked(true)
@@ -79,6 +80,16 @@ export default function MouseDragSelect(props) {
     }
 
     if (childNodeList) {
+      /**
+       * Test for dragging bounds
+       */
+      const teser = {}
+      childNodeList.forEach((item, i) => {
+        if (rect.left < item.right && rect.right > item.left && rect.top < item.bottom && rect.bottom > item.top) {
+          teser[posts[i].id] = true;
+        }
+      })
+      /** */
       const selections = childNodeList.map((item, i) => {
         if (rect.left < item.right && rect.right > item.left && rect.top < item.bottom && rect.bottom > item.top) {
           return i
@@ -93,9 +104,9 @@ export default function MouseDragSelect(props) {
     }
 
     // Auto scroll when mouse is above or below window
-    if (e.pageY < window.scrollY) {
+    if (((e.pageY - 100) < window.scrollY) && window.scrollY !== 0) {
       setAutoScroll('up')
-    } else if (e.pageY > (window.innerHeight + window.scrollY) && e.pageY < wrapperRef.current.offsetHeight) {
+    } else if ((e.pageY + 100) > (window.innerHeight + window.scrollY) && (e.pageY + 100) < wrapperRef.current.offsetHeight) {
       setAutoScroll('down')
     } else {
       setAutoScroll(false)
@@ -123,6 +134,31 @@ export default function MouseDragSelect(props) {
     initialMousePosition.current = false
   }, [])
 
+  const mouseDrag3 = useCallback(() => {
+    const testings = []
+    if (tcoords) {
+      tcoords.rows.forEach(item => {
+        tcoords.cols[item.top].forEach(item2 => {
+          testings.push({ top: item.top, left: item2.left, width: item2.right - item2.left, height: item.bottom - item.top, index: item2.index })
+        })
+      })
+    }
+    setTester(testings)
+  }, [tcoords])
+
+  const mouseDrag4 = useCallback(() => {
+    setTester(false)
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener("dragstart", mouseDrag3)
+    window.addEventListener("dragend", mouseDrag4)
+    return () => {
+      window.removeEventListener("dragstart", mouseDrag3)
+      window.removeEventListener("dragend", mouseDrag4)
+    }
+  }, [mouseDrag3, mouseDrag4])
+
   useEffect(() => {
     if (isMouseClicked) {
       window.addEventListener("mousemove", mouseDrag)
@@ -136,9 +172,15 @@ export default function MouseDragSelect(props) {
 
   return (
     <div
+      draggable="false"
       onMouseDown={mouseClick}
       ref={wrapperRef}>
       {props.children}
+      {/* <div style={{ pointerEvents: 'none' }}>
+        {tester && tester.map((item) => (
+          <span style={{ position: 'absolute', top: item.top, left: item.left, height: item.height, width: item.width, border: '1px solid #283574' }}></span>
+        ))}
+      </div> */}
       {isMouseDragging &&
         <div className="selectbox"
           style={{

@@ -57,7 +57,7 @@ export const useTagsDispatch = () => {
 }
 
 export const SelectionsProvider = ({ children }) => {
-  const [selections, dispatch] = useReducer(selectionsReducer, { selectedItems: [], selectedItemsID: [] })
+  const [selections, dispatch] = useReducer(selectionsReducer, { selectedItems: [], selectedItemsID: [], updated: false, tcoords: false })
 
   return (
     <SelectionsStateContext.Provider value={selections}>

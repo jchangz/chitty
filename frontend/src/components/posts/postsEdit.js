@@ -11,7 +11,7 @@ function PostsEdit({ item, highlight }) {
 
   return (
     <div
-      {...({ onClick: selectPost })}
+    {...(!highlight && { onMouseDown: selectPost })}
       className={(highlight ? "container-editing" : "container-edit")}
     />
   )
